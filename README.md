@@ -9,29 +9,27 @@ A Neovim plugin to support bidirectional text (mixing Left-to-Right and Right-to
 - **Bidirectional Display:** Automatically reverses Hebrew text in standard mode (`set norightleft`) so it reads correctly.
 - **Right-to-Left Mode Support:** Automatically reverses Latin text in `set rightleft` mode so it reads correctly.
 - **Toggle Support:** Reacts to `set rightleft` / `set norightleft` changes dynamically.
+- **Granular Control:** Enable or disable bidi rendering globally or per-buffer.
 
 ## Installation
 
 Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
--- Simple installation (activates automatically)
-{ "yairh/bidi.nvim" }
-
--- Or with custom config later
+-- Simple installation
 {
   "yairh/bidi.nvim",
+  -- To activate only when opening a buffer (lazy loading):
+  event = { "BufReadPost", "BufNewFile" },
   config = function()
-    require("bidi").setup({
-      -- options will go here
-    })
-  end
+    require("bidi").setup()
+  end,
 }
 ```
 
-## Usage
+Since `lazy.nvim` handles lazy loading, you can use `event` or `cmd` to control when the plugin (and its bidi rendering) activates.
 
-The plugin activates automatically on startup.
+## Usage
 
 ### Commands
 - `:Bidi enable`: Enable bidi rendering globally.
