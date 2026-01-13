@@ -27,11 +27,23 @@ function M.is_neutral(char)
   return true
 end
 
+---Determine the paragraph direction based on the first strong character
+---@param items table List of {char, type} items
+---@return "L"|"R"
+function M.detect_paragraph_direction(items)
+  for _, item in ipairs(items) do
+    if item.type == 'L' or item.type == 'R' then
+      return item.type
+    end
+  end
+  return 'L' -- Default to LTR if no strong characters found
+end
+
 ---Process a line of text, reordering bidirectional segments for visual display
 ---@param line string The input line of text
----@param base_direction "L"|"R" The base paragraph direction ('L' for LTR, 'R' for RTL)
+---@param view_direction "L"|"R" The direction of the view/window ('L' for norightleft, 'R' for rightleft)
 ---@return string The processed line
-function M.process_line(line, base_direction)
+function M.process_line(line, view_direction)
   local items = {}
   
   -- 1. Parse and classify characters
@@ -47,13 +59,16 @@ function M.process_line(line, base_direction)
     table.insert(items, {char = char, type = type})
   end
 
-  -- 2. Resolve Neutrals
+  -- 2. Detect Paragraph Direction (Base Direction)
+  local para_direction = M.detect_paragraph_direction(items)
+
+  -- 3. Resolve Neutrals
   -- Neutrals take the direction of surrounding strong types.
-  -- If surrounded by same type (R-N-R or L-N-L) -> become that type.
-  -- If mixed (R-N-L) or boundary -> default to base_direction.
+  -- If surrounded by same type -> become that type.
+  -- If mixed or boundary -> default to para_direction (Base Direction).
   for i, item in ipairs(items) do
     if item.type == 'N' then
-      local prev_strong = base_direction
+      local prev_strong = para_direction
       -- Look backward for strong type
       for j = i - 1, 1, -1 do
         if items[j].type ~= 'N' then
@@ -62,7 +77,7 @@ function M.process_line(line, base_direction)
         end
       end
       
-      local next_strong = base_direction
+      local next_strong = para_direction
       -- Look forward for strong type
       for j = i + 1, #items do
         if items[j].type ~= 'N' then
@@ -74,15 +89,15 @@ function M.process_line(line, base_direction)
       if prev_strong == next_strong then
         item.resolved = prev_strong
       else
-        item.resolved = base_direction
+        item.resolved = para_direction
       end
     else
       item.resolved = item.type
     end
   end
 
-  -- 3. Group chunks and process
-  -- If chunk type differs from base_direction, it needs to be reversed visually.
+  -- 4. Group chunks and process
+  -- If chunk type differs from view_direction, it needs to be reversed visually.
   local result = {}
   local current_chunk = {}
   local current_type = nil 
@@ -91,7 +106,7 @@ function M.process_line(line, base_direction)
     if #current_chunk == 0 then return end
     local text = table.concat(current_chunk)
     
-    if current_type ~= base_direction then
+    if current_type ~= view_direction then
       -- Reverse the text chunk (UTF-8 aware)
       local chars = {}
       for char in string.gmatch(text, "[%z\1-\127\194-\244][\128-\191]*") do

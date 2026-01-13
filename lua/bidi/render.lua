@@ -26,15 +26,15 @@ function M.refresh_buffer(bufnr)
     local processed
     if is_rightleft then
       -- Mode: Right-to-Left (Neovim flips everything)
-      -- Base direction is 'R'.
-      -- Latin chunks (L) will be reversed by process_line so they appear correctly LTR after vim flips them.
-      -- Hebrew chunks (R) will be kept as-is, so they appear correctly RTL after vim flips them.
+      -- View direction is 'R'.
+      -- L chunks will be reversed (to become Visual LTR after Neovim flip).
+      -- R chunks will be kept (to become Visual RTL after Neovim flip).
       processed = logic.process_line(line, 'R')
     else
       -- Mode: Left-to-Right (Neovim normal)
-      -- Base direction is 'L'.
-      -- Hebrew chunks (R) will be reversed by process_line to appear RTL.
-      -- Latin chunks (L) will be kept as-is.
+      -- View direction is 'L'.
+      -- R chunks will be reversed (to become Visual RTL).
+      -- L chunks will be kept (to become Visual LTR).
       processed = logic.process_line(line, 'L')
     end
 
