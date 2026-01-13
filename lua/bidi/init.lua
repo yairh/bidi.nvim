@@ -8,14 +8,24 @@ function M.setup(opts)
 	M.enable()
 end
 
----Enable bidi rendering
+---Enable bidi rendering globally
 function M.enable()
 	render.enable()
 end
 
----Disable bidi rendering
+---Disable bidi rendering globally
 function M.disable()
 	render.disable()
+end
+
+---Enable bidi rendering for the current buffer
+function M.buf_enable()
+	render.buf_enable(0)
+end
+
+---Disable bidi rendering for the current buffer
+function M.buf_disable()
+	render.buf_disable(0)
 end
 
 return M

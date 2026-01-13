@@ -10,13 +10,17 @@ vim.api.nvim_create_user_command("Bidi", function(opts)
 		bidi.enable()
 	elseif arg == "disable" then
 		bidi.disable()
+	elseif arg == "buf_enable" then
+		bidi.buf_enable()
+	elseif arg == "buf_disable" then
+		bidi.buf_disable()
 	else
 		vim.notify("Invalid Bidi argument: " .. arg, vim.log.levels.ERROR)
 	end
 end, {
 	nargs = 1,
 	complete = function()
-		return { "enable", "disable" }
+		return { "enable", "disable", "buf_enable", "buf_disable" }
 	end,
 	desc = "Bidi activation/deactivation"
 })

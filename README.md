@@ -34,8 +34,10 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 The plugin activates automatically on startup.
 
 ### Commands
-- `:Bidi enable`: Enable bidi rendering.
-- `:Bidi disable`: Disable bidi rendering (clears all bidi marks).
+- `:Bidi enable`: Enable bidi rendering globally.
+- `:Bidi disable`: Disable bidi rendering globally (clears all bidi marks).
+- `:Bidi buf_enable`: Enable bidi rendering for the current buffer only (overrides global disable).
+- `:Bidi buf_disable`: Disable bidi rendering for the current buffer only (overrides global enable).
 
 ### Settings
 You can toggle `set rightleft` in Neovim to switch the base direction of the window, and the plugin will adjust the rendering accordingly.
