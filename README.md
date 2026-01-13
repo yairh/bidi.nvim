@@ -15,15 +15,27 @@ A Neovim plugin to support bidirectional text (mixing Left-to-Right and Right-to
 Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
+-- Simple installation (activates automatically)
+{ "yairh/bidi.nvim" }
+
+-- Or with custom config later
 {
   "yairh/bidi.nvim",
   config = function()
-    require("bidi").setup()
+    require("bidi").setup({
+      -- options will go here
+    })
   end
 }
 ```
 
 ## Usage
 
-The plugin activates automatically on setup.
-You can toggle `set rightleft` in Neovim to see the effect.
+The plugin activates automatically on startup.
+
+### Commands
+- `:Bidi enable`: Enable bidi rendering.
+- `:Bidi disable`: Disable bidi rendering (clears all bidi marks).
+
+### Settings
+You can toggle `set rightleft` in Neovim to switch the base direction of the window, and the plugin will adjust the rendering accordingly.
