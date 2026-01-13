@@ -2,6 +2,8 @@ local M = {}
 local logic = require("bidi.logic")
 local ns = vim.api.nvim_create_namespace("bidi")
 
+---Refresh the bidi rendering for a buffer
+---@param bufnr integer|nil Buffer number (defaults to current buffer if nil/0)
 function M.refresh_buffer(bufnr)
   if not bufnr or bufnr == 0 then
     bufnr = vim.api.nvim_get_current_buf()
@@ -48,6 +50,7 @@ function M.refresh_buffer(bufnr)
   end
 end
 
+---Enable the bidi rendering plugin
 function M.enable()
   local group = vim.api.nvim_create_augroup("BidiGroup", { clear = true })
   
