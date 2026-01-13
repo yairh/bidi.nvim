@@ -2,6 +2,9 @@
 
 A Neovim plugin to support bidirectional text (mixing Left-to-Right and Right-to-Left).
 
+> [!NOTE]
+> Currently, this plugin only supports Hebrew.
+
 ## Features
 - **Bidirectional Display:** Automatically reverses Hebrew text in standard mode (`set norightleft`) so it reads correctly.
 - **Right-to-Left Mode Support:** Automatically reverses Latin text in `set rightleft` mode so it reads correctly.
