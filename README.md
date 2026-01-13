@@ -13,7 +13,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-  dir = "/home/yairhochner/projects/bidi.nvim", -- local path
+  "yairh/bidi.nvim",
   config = function()
     require("bidi").setup()
   end
