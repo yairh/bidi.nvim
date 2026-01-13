@@ -27,15 +27,11 @@ function M.refresh_buffer(bufnr)
     if is_rightleft then
       -- Mode: Right-to-Left (Neovim flips everything)
       -- View direction is 'R'.
-      -- L chunks will be reversed (to become Visual LTR after Neovim flip).
-      -- R chunks will be kept (to become Visual RTL after Neovim flip).
-      processed = logic.process_line(line, 'R')
+      processed = logic.process_line(line, logic.Dir.RTL)
     else
       -- Mode: Left-to-Right (Neovim normal)
       -- View direction is 'L'.
-      -- R chunks will be reversed (to become Visual RTL).
-      -- L chunks will be kept (to become Visual LTR).
-      processed = logic.process_line(line, 'L')
+      processed = logic.process_line(line, logic.Dir.LTR)
     end
 
     if processed ~= line then
