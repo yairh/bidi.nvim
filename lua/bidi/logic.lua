@@ -7,6 +7,13 @@ M.Dir = {
 	NEUTRAL = 'N'
 }
 
+local mirrored_pairs = {
+	['('] = ')', [')'] = '(',
+	['['] = ']', [']'] = '[',
+	['{'] = '}', ['}'] = '{',
+	['<'] = '>', ['>'] = '<',
+}
+
 ---Check if a character is Hebrew (Strong R)
 ---@param char string
 ---@return boolean
@@ -180,32 +187,35 @@ function M.process_line(line, view_direction)
 	-- 5. Reorder Runs (L2)
 	runs = reorder_runs(runs)
 
-	-- 6. Process Final Output (Reverse characters within runs if needed)
+	-- 6. Process Final Output (Mirroring & Reversal)
 	local result = {}
 	local view_is_rtl = (view_direction == M.Dir.RTL)
 
 	for _, run in ipairs(runs) do
-		-- Determine if this run should be visually reversed
-		-- Run is RTL if level is odd
 		local run_is_rtl = (run.level % 2 == 1)
 		
-		-- Reverse if:
-		-- 1. Run is LTR (even) AND View is RTL (Right-Left Mode) -> Neovim flips back to LTR
-		-- 2. Run is RTL (odd) AND View is LTR (Normal Mode) -> We flip to see RTL
-		-- Combined XOR logic:
-		local should_reverse = (run_is_rtl ~= view_is_rtl)
-
-		if should_reverse then
-			-- Reverse characters (UTF-8 aware)
-			local chars = {}
-			for char in string.gmatch(run.text, "[%z\1-\127\194-\244][\128-\191]*") do
-				table.insert(chars, char)
-			end
-			reverse_slice(chars, 1, #chars)
-			table.insert(result, table.concat(chars))
-		else
-			table.insert(result, run.text)
+		-- Extract characters
+		local chars = {}
+		for char in string.gmatch(run.text, "[%z\1-\127\194-\244][\128-\191]*") do
+			table.insert(chars, char)
 		end
+
+		-- Mirroring (L4): If run is RTL, mirror characters like ( to )
+		if run_is_rtl then
+			for i, char in ipairs(chars) do
+				if mirrored_pairs[char] then
+					chars[i] = mirrored_pairs[char]
+				end
+			end
+		end
+
+		-- Reverse if needed (L2 continued)
+		local should_reverse = (run_is_rtl ~= view_is_rtl)
+		if should_reverse then
+			reverse_slice(chars, 1, #chars)
+		end
+		
+		table.insert(result, table.concat(chars))
 	end
 
 	return table.concat(result)

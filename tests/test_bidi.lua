@@ -13,41 +13,63 @@ local function run_tests()
   print("Running Bidi Tests...")
 
   -- Test 1: Simple Hebrew (RTL) in LTR View
-  -- Logical: "ABC" (Hebrew) -> Visual: "CBA"
-  -- A=א, B=ב, C=ג
   local hebrew = "אבג"
   local res = logic.process_line(hebrew, logic.Dir.LTR)
-  -- "א" is first logical. "ג" is last.
-  -- Visual in LTR terminal: "גבא" (reversed).
-  local reversed_hebrew = "גבא"
-  assert_eq(reversed_hebrew, res, "Simple Hebrew Reverse")
+  assert_eq("גבא", res, "Simple Hebrew Reverse")
 
   -- Test 2: Hebrew English (RTL Para)
-  -- Logical: "SHALOM WORLD."
-  -- SHALOM (R), WORLD (L), . (N->R)
-  -- Reorder: . WORLD SHALOM
-  -- Render: . WORLD MOLAHS (reversed Hebrew)
-  -- Visual: ". WORLD םולש"
   local mixed = "שלום WORLD."
-  -- "שלום" is 4 chars.
-  -- "ש" is first logical. "ם" is last.
-  -- Visual should be: ".WORLD םולש" (Space is attached to Hebrew "שלום ", so reversed " םולש")
   local expected = ".WORLD םולש"
   res = logic.process_line(mixed, logic.Dir.LTR)
   assert_eq(expected, res, "Hebrew English Mixed (RTL Para)")
 
   -- Test 3: English Hebrew (LTR Para)
-  -- "HELLO שלום"
-  -- HELLO (L), SPACE (N->L), SHALOM (R)
-  -- Base LTR (0).
-  -- HELLO (0), SPACE (0), SHALOM (1).
-  -- Reorder: HELLO SPACE SHALOM (No reorder needed, 0 then 1).
-  -- Render: HELLO SPACE MOLAHS
-  -- Visual: "HELLO םולש"
   mixed = "HELLO שלום"
   expected = "HELLO םולש"
   res = logic.process_line(mixed, logic.Dir.LTR)
   assert_eq(expected, res, "English Hebrew Mixed (LTR Para)")
+
+  -- Test 4: Hebrew with Parentheses (All RTL)
+  -- Logical: "א (ב) ג" 
+  -- RTL Context.
+  -- 1. Mirroring: "א )ב( ג"
+  -- 2. Reversal: "ג (ב) א"
+  -- Visual result should look like "(ב)" but characters are swapped.
+  mixed = "א (ב) ג"
+  expected = "ג (ב) א"
+  res = logic.process_line(mixed, logic.Dir.LTR)
+  assert_eq(expected, res, "Hebrew with Parentheses (All RTL)")
+
+  -- Test 5: Mixed with Parentheses (RTL Para)
+  -- Logical: "שלום (WORLD)!"
+  -- Para RTL.
+  -- Run 1 (RTL): "שלום (" -> Mirrored: "שלום )" -> Reversed: ") םולש"
+  -- Run 2 (LTR): "WORLD" -> Kept: "WORLD"
+  -- Run 3 (RTL): ")!" -> Mirrored: "(!" -> Reversed: "!("
+  -- Sequence: R3 R2 R1
+  -- "!(" + "WORLD" + ") םולש"
+  -- Result: "!(WORLD) םולש"
+  mixed = "שלום (WORLD)!"
+  expected = "!(WORLD) םולש"
+  res = logic.process_line(mixed, logic.Dir.LTR)
+  assert_eq(expected, res, "Mixed with Parentheses (RTL Para)")
+
+  -- Test 6: English with Hebrew Parentheses (LTR Para)
+  -- Logical: "HELLO (שלום)!"
+  -- Para LTR.
+  -- Run 2 (RTL): "שלום" -> Reversed: "םולש"
+  -- Neutrals (parens) stay LTR (Level 0) because base is LTR and surround is mixed?
+  -- Wait. Space is N. ( is N. שלום is R.
+  -- Space: L...R -> Base(L). (L)
+  -- (: L...R -> Base(L). (L)
+  -- So ( stays LTR. No mirroring.
+  -- ) is N. ) followed by ! (N->L). Surround: R...L -> Base(L).
+  -- So ) stays LTR. No mirroring.
+  -- Result: "HELLO (םולש)!"
+  mixed = "HELLO (שלום)!"
+  expected = "HELLO (םולש)!"
+  res = logic.process_line(mixed, logic.Dir.LTR)
+  assert_eq(expected, res, "English with Hebrew Parentheses (LTR Para)")
 
 end
 
