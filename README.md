@@ -39,3 +39,10 @@ Since `lazy.nvim` handles lazy loading, you can use `event` or `cmd` to control 
 
 ### Settings
 You can toggle `set rightleft` in Neovim to switch the base direction of the window, and the plugin will adjust the rendering accordingly.
+
+### Running Tests
+
+```shell
+nvim -c "set rtp+=." -l tests/test_bidi.lua
+
+```
