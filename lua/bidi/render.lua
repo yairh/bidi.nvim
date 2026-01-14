@@ -17,7 +17,7 @@ local function is_buf_enabled(bufnr)
 end
 
 ---Refresh the bidi rendering for a buffer
----@param bufnr integer|nil Buffer number (defaults to current buffer if nil/0)
+---@param bufnr integer? Buffer number (defaults to current buffer if nil/0)
 function M.refresh_buffer(bufnr)
 	if not bufnr or bufnr == 0 then
 		bufnr = vim.api.nvim_get_current_buf()
@@ -27,11 +27,8 @@ function M.refresh_buffer(bufnr)
 		return
 	end
 
-	-- Check window option 'rightleft'
-	local is_rightleft = false
-	if vim.api.nvim_get_current_buf() == bufnr then
-		is_rightleft = vim.wo.rightleft
-	end
+	-- this is for the local window
+	local is_rightleft = vim.wo.rightleft
 
 	-- Clear existing marks
 	vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
@@ -64,6 +61,7 @@ local function setup_autocmds()
 			if args.event == "OptionSet" and args.match ~= "rightleft" then
 				return
 			end
+			-- refresh buffer only if we are in a RTL/LTR setting change
 			M.refresh_buffer(args.buf)
 		end
 	})
@@ -95,7 +93,7 @@ function M.disable()
 end
 
 ---Enable bidi for the current buffer
----@param bufnr integer|nil
+---@param bufnr integer?
 function M.buf_enable(bufnr)
 	if not bufnr or bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
 	vim.api.nvim_buf_set_var(bufnr, "bidi_enabled", true)
@@ -114,7 +112,7 @@ function M.buf_enable(bufnr)
 end
 
 ---Disable bidi for the current buffer
----@param bufnr integer|nil
+---@param bufnr integer?
 function M.buf_disable(bufnr)
 	if not bufnr or bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
 	vim.api.nvim_buf_set_var(bufnr, "bidi_enabled", false)
@@ -128,3 +126,4 @@ function M.is_enabled()
 end
 
 return M
+

@@ -3,7 +3,6 @@ local bidi = require("bidi")
 -- Setup the plugin (activates by default)
 bidi.setup()
 
--- Create the user command
 vim.api.nvim_create_user_command("Bidi", function(opts)
 	local arg = opts.args:lower()
 	if arg == "enable" then
@@ -24,3 +23,4 @@ end, {
 	end,
 	desc = "Bidi activation/deactivation"
 })
+
